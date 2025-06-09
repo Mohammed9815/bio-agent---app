@@ -16,63 +16,79 @@ from bidi.algorithm import get_display
 st.set_page_config(page_title="الوكيل الذكي لمادة الأحياء", layout="wide", page_icon="🧬")
 
 # ==============================================================================
-#  المرحلة الرابعة: تصميم متكيف مع الوضع الفاتح والداكن
+#  المرحلة النهائية: تصميم متكيف واحترافي عالي التباين
 # ==============================================================================
 def load_css():
     st.markdown("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
             
-            /* ---- متغيرات الألوان ---- */
+            /* ---- متغيرات الألوان الاحترافية ---- */
             :root {
-                --bg-color-light: linear-gradient(to bottom right, #f0f4f8, #e9f5f9);
-                --card-bg-light: rgba(255, 255, 255, 0.85);
-                --text-color-light: #0d2b36;
-                --header-color-light: #004D40;
-                
-                --bg-color-dark: linear-gradient(to bottom right, #0d1b2a, #1a2a3a);
-                --card-bg-dark: rgba(26, 42, 58, 0.85);
-                --text-color-dark: #e0f2f1;
-                --header-color-dark: #66d9ff;
+                /* الوضع الفاتح */
+                --bg-light: #F0F2F6;
+                --card-bg-light: #FFFFFF;
+                --text-light: #1E293B; /* Dark Blue-Gray */
+                --header-light: #00695C; /* Dark Teal */
+                --accent-light: #00897B;
+
+                /* الوضع الداكن */
+                --bg-dark: #0D1117;
+                --card-bg-dark: #161B22;
+                --text-dark: #E6EDF3; /* Light Gray */
+                --header-dark: #58A6FF; /* Bright Blue */
+                --accent-dark: #2F81F7;
             }
 
-            /* --- الوضع الفاتح (الافتراضي) --- */
-            html, body, [class*="st-"] { font-family: 'Cairo', sans-serif; }
+            /* ---- الأنماط العامة ---- */
+            html, body, [class*="st-"], .st-emotion-cache-1xarl3l p {
+                font-family: 'Cairo', sans-serif;
+            }
+            .stApp > header { background-color: transparent; }
+
+            /* ---- الوضع الفاتح (الافتراضي) ---- */
             .stApp {
-                background-image: var(--bg-color-light);
-                color: var(--text-color-light);
+                background-color: var(--bg-light);
             }
             .card {
                 background-color: var(--card-bg-light);
                 border-radius: 15px; padding: 25px; margin-bottom: 20px;
-                box-shadow: 0 4px 12px rgba(0,0,0,0.08);
-                border: 1px solid rgba(255, 255, 255, 0.9);
-                backdrop-filter: blur(5px);
+                box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+                border: 1px solid #e2e8f0;
             }
-            h1, h2, h3, h4 { color: var(--header-color-light) !important; }
-            
-            /* --- التوافق مع الوضع الداكن --- */
-            /* Streamlit يضيف theme-dark كـ class للـ body في الوضع الداكن */
+            h1, h2, h3, h4, h5, h6, .st-emotion-cache-1xarl3l p {
+                color: var(--header-light) !important;
+            }
+            .st-emotion-cache-ue6h4q e1f1d6gn0, .st-emotion-cache-1xarl3l p {
+                 color: var(--text-light) !important;
+            }
+
+            /* ---- التوافق مع الوضع الداكن ---- */
             body.theme-dark .stApp {
-                background-image: var(--bg-color-dark);
-                color: var(--text-color-dark);
+                background-color: var(--bg-dark);
             }
             body.theme-dark .card {
                 background-color: var(--card-bg-dark);
-                border: 1px solid rgba(102, 217, 255, 0.3);
+                border: 1px solid #30363d;
             }
-            body.theme-dark h1, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4 {
-                color: var(--header-color-dark) !important;
+            body.theme-dark h1, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4, body.theme-dark h5, body.theme-dark h6 {
+                color: var(--header-dark) !important;
             }
-            body.theme-dark .stTextInput > div > div > input, 
-            body.theme-dark .stNumberInput > div > div > input {
-                 color: var(--text-color-dark);
+            /* استهداف نصوص العناوين والخيارات بشكل دقيق */
+            body.theme-dark .st-emotion-cache-1xarl3l p, 
+            body.theme-dark .st-emotion-cache-1kyxreq e1f1d6gn0,
+            body.theme-dark .st-emotion-cache-ue6h4q e1f1d6gn0,
+            body.theme-dark label.st-emotion-cache-ue6h4q.e1f1d6gn0 {
+                 color: var(--text-dark) !important;
             }
-
-            .stApp > header { background-color: transparent; }
+            
+            /* ---- أزرار وحقول الإدخال ---- */
             .stButton > button {
-                border-radius: 10px; background-color: #00897B; color: white;
+                border-radius: 10px; background-color: var(--accent-light); color: white;
                 font-weight: bold; border: none; padding: 10px 20px; transition: all 0.3s;
+            }
+            body.theme-dark .stButton > button {
+                background-color: var(--accent-dark);
             }
         </style>
     """, unsafe_allow_html=True)
@@ -80,8 +96,8 @@ def load_css():
 load_css()
 
 # --- العناوين ---
-st.markdown('<h1>🧬 الوكيل الذكي 3.0 🧬</h1>', unsafe_allow_html=True)
-st.markdown('<h4>مساعدك الشخصي لتوليد أنشطة طلابية فريدة ومبتكرة</h4>', unsafe_allow_html=True)
+st.markdown('<h1 style="text-align:center;">🧬 الوكيل الذكي 4.0 🧬</h1>', unsafe_allow_html=True)
+st.markdown('<h4 style="text-align:center;">مساعدك الشخصي لتوليد أنشطة طلابية فريدة ومبتكرة</h4>', unsafe_allow_html=True)
 st.markdown("<hr/>", unsafe_allow_html=True)
 
 
@@ -110,9 +126,7 @@ ACTIVITY_BANK = {
     ]
 }
 
-# ==============================================================================
-#  المرحلة الأولى: إصلاح منطق تصنيف الدرجات
-# ==============================================================================
+# --- منطق التصنيف والوظائف الأخرى (لا تغيير) ---
 def generate_smart_activity(score):
     if score < 5:
         level = "علاجي"
@@ -120,20 +134,16 @@ def generate_smart_activity(score):
     elif 5 <= score <= 7:
         level = "دعم"
         level_emoji = "💪"
-    else: # أكبر من 7
+    else:
         level = "إثرائي"
         level_emoji = "😃"
-    
     activity_template = random.choice(ACTIVITY_BANK[level])
     return f"{level} {level_emoji}", activity_template
 
-
-# --- دالة إنشاء ملف Word (لا تغيير) ---
 def create_word_doc(name, level, content):
     document = Document()
     for section in document.sections:
         section.right_to_left = True
-
     def add_rtl_paragraph(text, alignment=WD_ALIGN_PARAGRAPH.RIGHT, size=12, bold=False):
         reshaped_text = arabic_reshaper.reshape(text)
         bidi_text = get_display(reshaped_text)
@@ -146,15 +156,12 @@ def create_word_doc(name, level, content):
         font.bold = bold
         p_format = p.paragraph_format
         p_format.right_to_left = True
-        
     add_rtl_paragraph("الوكيل الذكي لمادة الأحياء", alignment=WD_ALIGN_PARAGRAPH.CENTER, size=16, bold=True)
     add_rtl_paragraph(f"اسم الطالب: {name}", size=14)
     add_rtl_paragraph(f"التصنيف: {level}", size=14)
     document.add_paragraph("--------------------------------------------------")
-
     for line in content.split('\n'):
         add_rtl_paragraph(line)
-
     buffer = BytesIO()
     document.save(buffer)
     buffer.seek(0)
@@ -185,10 +192,6 @@ else:
     df = df[df['الاسم'].str.strip() != ""] if not df.empty else df
 st.markdown('</div>', unsafe_allow_html=True)
 
-
-# ==============================================================================
-#  المرحلة الثانية: تغيير طريقة اختيار الدرس
-# ==============================================================================
 st.markdown('<div class="card">', unsafe_allow_html=True)
 st.subheader("📚 الخطوة 2: اختر الدرس")
 lessons = [
@@ -199,28 +202,23 @@ lessons = [
 selected_lesson = st.radio("اختر الدرس المطلوب:", lessons, horizontal=True)
 st.markdown('</div>', unsafe_allow_html=True)
 
-
-# --- المنطق الرئيسي ---
 if df is not None and not df.empty and 'الاسم' in df.columns and 'الدرجة' in df.columns and selected_lesson:
     if st.button("✨ توليد الأنشطة الذكية", use_container_width=True):
         with st.spinner('الوكيل الذكي يفكر... 🧠 لطفاً، انتظر قليلاً.'):
             files_to_zip = []
             st.markdown("---")
             st.markdown('<h2>📋 النتائج والأنشطة المخصصة</h2>', unsafe_allow_html=True)
-
             for index, row in df.iterrows():
                 name, score = row['الاسم'], row['الدرجة']
                 if pd.notna(name) and name.strip() != "" and pd.notna(score):
                     level, activity_template = generate_smart_activity(float(score))
                     final_activity = activity_template.format(lesson=selected_lesson)
-                    
                     with st.expander(f"👤 {name}  |  الدرجة: {score}  |  المستوى المقترح: {level}"):
                         st.markdown('<div class="card">', unsafe_allow_html=True)
                         st.text_area("النشاط المولد:", final_activity, height=150)
                         word_buffer = create_word_doc(name, level, final_activity)
                         files_to_zip.append((f"{name}.docx", word_buffer.getvalue()))
                         st.markdown('</div>', unsafe_allow_html=True)
-
             if files_to_zip:
                 zip_buf = BytesIO()
                 with ZipFile(zip_buf, "w") as zipf:
@@ -229,11 +227,7 @@ if df is not None and not df.empty and 'الاسم' in df.columns and 'الدر�
                 zip_buf.seek(0)
                 b64 = base64.b64encode(zip_buf.read()).decode()
                 download_filename = f"أنشطة_{selected_lesson.replace(' ', '_')}.zip"
-                
                 st.markdown("---")
-                # ==============================================================================
-                #  المرحلة الثالثة: تغيير نص زر التحميل
-                # ==============================================================================
                 st.download_button(
                     label="📥 تحميل الأنشطة",
                     data=zip_buf,
@@ -243,4 +237,5 @@ if df is not None and not df.empty and 'الاسم' in df.columns and 'الدر�
                 )
         st.success("🎉 تم توليد الأنشطة بنجاح!")
         st.balloons()
+
 
