@@ -84,38 +84,53 @@ st.markdown('<h4 style="text-align: center; color: #00695C;">أداة ذكية �
 st.markdown("---")
 
 
-# --- دالة إنشاء ملف Word ---
+# --- دالة إنشاء ملف Word (النسخة النهائية والمصححة) ---
 def create_word_doc(name, level, content):
-    # إعادة تشكيل النص العربي قبل إضافته للمستند
-    def correct_arabic(text):
-        reshaped_text = arabic_reshaper.reshape(text)
-        return get_display(reshaped_text)
-
     document = Document()
-    # تغيير اتجاه المستند ليكون من اليمين لليسار
-    sections = document.sections
-    for section in sections:
+    # Set document direction to RTL for all sections
+    for section in document.sections:
         section.right_to_left = True
 
-    # إضافة العنوان
-    title = document.add_heading(correct_arabic("الوكيل الذكي لمادة الأحياء"), level=0)
-    title.alignment = WD_ALIGN_PARAGRAPH.CENTER
-    
-    # إضافة البيانات الأساسية
-    p_name = document.add_paragraph(correct_arabic(f"اسم الطالب: {name}"))
-    p_name.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    
-    p_level = document.add_paragraph(correct_arabic(f"التصنيف: {level}"))
-    p_level.alignment = WD_ALIGN_PARAGRAPH.RIGHT
-    
-    document.add_paragraph("---") # فاصل
+    # Helper function to add RTL text correctly
+    def add_rtl_text(paragraph, text, size=12, bold=False):
+        # Reshape and apply bidi algorithm
+        reshaped_text = arabic_reshaper.reshape(text)
+        bidi_text = get_display(reshaped_text)
+        
+        # Add run and set text
+        run = paragraph.add_run(bidi_text)
+        
+        # Set font properties for the run
+        font = run.font
+        font.name = 'Arial' # Using a common font
+        font.size = Pt(size)
+        font.bold = bold
+        font.rtl = True # This is crucial for Word to render correctly
 
-    # إضافة محتوى النشاط
+    # Add Title
+    title_p = document.add_paragraph()
+    title_p.alignment = WD_ALIGN_PARAGRAPH.CENTER
+    add_rtl_text(title_p, "الوكيل الذكي لمادة الأحياء", size=16, bold=True)
+
+    # Add student info
+    name_p = document.add_paragraph()
+    name_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    add_rtl_text(name_p, f"اسم الطالب: {name}")
+
+    level_p = document.add_paragraph()
+    level_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+    add_rtl_text(level_p, f"التصنيف: {level}")
+
+    # Add separator
+    document.add_paragraph("------------------")
+
+    # Add activity content line by line
     for line in content.split('\n'):
-        p_content = document.add_paragraph(correct_arabic(line))
-        p_content.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        content_p = document.add_paragraph()
+        content_p.alignment = WD_ALIGN_PARAGRAPH.RIGHT
+        add_rtl_text(content_p, line)
 
-    # حفظ المستند في الذاكرة
+    # Save to buffer
     buffer = BytesIO()
     document.save(buffer)
     buffer.seek(0)
@@ -219,5 +234,4 @@ if df is not None and not df.empty and 'الاسم' in df.columns and 'الدر�
 
 elif df is not None:
     st.warning("يرجى التأكد من إدخال بيانات الطلاب وأن ملف الإكسل يحتوي على عمودين بالاسمين 'الاسم' و 'الدرجة'.")
-
 
