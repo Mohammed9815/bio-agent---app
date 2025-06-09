@@ -3,7 +3,7 @@ import pandas as pd
 from io import BytesIO
 from zipfile import ZipFile
 import base64
-import random # لاستيراد مكتبة الاختيار العشوائي
+import random
 
 # --- استيراد المكتبات ---
 from docx import Document
@@ -15,46 +15,77 @@ from bidi.algorithm import get_display
 # --- إعدادات الصفحة ---
 st.set_page_config(page_title="الوكيل الذكي لمادة الأحياء", layout="wide", page_icon="🧬")
 
-# --- CSS مخصص للتصميم ---
+# ==============================================================================
+#  المرحلة الرابعة: تصميم متكيف مع الوضع الفاتح والداكن
+# ==============================================================================
 def load_css():
     st.markdown("""
         <style>
             @import url('https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&display=swap');
+            
+            /* ---- متغيرات الألوان ---- */
+            :root {
+                --bg-color-light: linear-gradient(to bottom right, #f0f4f8, #e9f5f9);
+                --card-bg-light: rgba(255, 255, 255, 0.85);
+                --text-color-light: #0d2b36;
+                --header-color-light: #004D40;
+                
+                --bg-color-dark: linear-gradient(to bottom right, #0d1b2a, #1a2a3a);
+                --card-bg-dark: rgba(26, 42, 58, 0.85);
+                --text-color-dark: #e0f2f1;
+                --header-color-dark: #66d9ff;
+            }
+
+            /* --- الوضع الفاتح (الافتراضي) --- */
             html, body, [class*="st-"] { font-family: 'Cairo', sans-serif; }
             .stApp {
-                background-image: linear-gradient(to bottom right, #e0f2f1, #d4eaf7);
-                background-attachment: fixed;
+                background-image: var(--bg-color-light);
+                color: var(--text-color-light);
             }
-            .stApp > header { background-color: transparent; }
             .card {
-                background-color: rgba(255, 255, 255, 0.8);
+                background-color: var(--card-bg-light);
                 border-radius: 15px; padding: 25px; margin-bottom: 20px;
                 box-shadow: 0 4px 12px rgba(0,0,0,0.08);
                 border: 1px solid rgba(255, 255, 255, 0.9);
                 backdrop-filter: blur(5px);
             }
-            .stButton > button, .stDownloadButton > a {
+            h1, h2, h3, h4 { color: var(--header-color-light) !important; }
+            
+            /* --- التوافق مع الوضع الداكن --- */
+            /* Streamlit يضيف theme-dark كـ class للـ body في الوضع الداكن */
+            body.theme-dark .stApp {
+                background-image: var(--bg-color-dark);
+                color: var(--text-color-dark);
+            }
+            body.theme-dark .card {
+                background-color: var(--card-bg-dark);
+                border: 1px solid rgba(102, 217, 255, 0.3);
+            }
+            body.theme-dark h1, body.theme-dark h2, body.theme-dark h3, body.theme-dark h4 {
+                color: var(--header-color-dark) !important;
+            }
+            body.theme-dark .stTextInput > div > div > input, 
+            body.theme-dark .stNumberInput > div > div > input {
+                 color: var(--text-color-dark);
+            }
+
+            .stApp > header { background-color: transparent; }
+            .stButton > button {
                 border-radius: 10px; background-color: #00897B; color: white;
                 font-weight: bold; border: none; padding: 10px 20px; transition: all 0.3s;
-                text-decoration: none; display: inline-block;
             }
-            .stButton > button:hover { background-color: #00695C; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
-            .stSelectbox div[data-baseweb="select"] > div { border-radius: 10px; background-color: #FFFFFF; }
-            .stFileUploader { border: 2px dashed #00897B; border-radius: 10px; padding: 20px; background-color: rgba(255, 255, 255, 0.5); }
         </style>
     """, unsafe_allow_html=True)
 
 load_css()
 
 # --- العناوين ---
-st.markdown('<h1 style="text-align: center; color: #004D40;">🧬 الوكيل الذكي 2.0 🧬</h1>', unsafe_allow_html=True)
-st.markdown('<h4 style="text-align: center; color: #00695C;">مساعدك الشخصي لتوليد أنشطة طلابية فريدة ومبتكرة</h4>', unsafe_allow_html=True)
-st.markdown("---")
+st.markdown('<h1>🧬 الوكيل الذكي 3.0 🧬</h1>', unsafe_allow_html=True)
+st.markdown('<h4>مساعدك الشخصي لتوليد أنشطة طلابية فريدة ومبتكرة</h4>', unsafe_allow_html=True)
+st.markdown("<hr/>", unsafe_allow_html=True)
 
 
-# ==============================================================================
-#  المرحلة الأولى: بناء العقل الذكي (بنك الأنشطة)
-# ==============================================================================
+# --- بنك الأنشطة (لا تغيير) ---
 ACTIVITY_BANK = {
     "علاجي": [
         "اكتب تعريفاً مبسطاً لمفهوم '{lesson}'.",
@@ -80,10 +111,9 @@ ACTIVITY_BANK = {
 }
 
 # ==============================================================================
-#  المرحلة الثانية: إصلاح منطق التصنيف وتوليد الأنشطة الديناميكية
+#  المرحلة الأولى: إصلاح منطق تصنيف الدرجات
 # ==============================================================================
 def generate_smart_activity(score):
-    # تصحيح منطق التصنيف
     if score < 5:
         level = "علاجي"
         level_emoji = "😕"
@@ -94,13 +124,11 @@ def generate_smart_activity(score):
         level = "إثرائي"
         level_emoji = "😃"
     
-    # اختيار قالب نشاط عشوائي من البنك
     activity_template = random.choice(ACTIVITY_BANK[level])
-    
     return f"{level} {level_emoji}", activity_template
 
 
-# --- دالة إنشاء ملف Word (النسخة النهائية) ---
+# --- دالة إنشاء ملف Word (لا تغيير) ---
 def create_word_doc(name, level, content):
     document = Document()
     for section in document.sections:
@@ -132,99 +160,87 @@ def create_word_doc(name, level, content):
     buffer.seek(0)
     return buffer
 
-
-# ==============================================================================
-#  المرحلة الثالثة: تصميم جديد لتجربة المستخدم
-# ==============================================================================
-
-# --- الجزء الأول: إدخال البيانات ---
+# --- واجهة المستخدم المطورة ---
 df = None
-with st.container():
-    st.markdown('<div class="card">', unsafe_allow_html=True)
-    st.subheader("📥 الخطوة 1: أدخل بيانات الطلاب واختر الدرس")
-    
-    col1, col2 = st.columns([1, 1])
-    
-    with col1:
-        method = st.radio("اختر طريقة الإدخال:", ["📄 رفع ملف Excel", "✍️ إدخال يدوي"], horizontal=True)
-        if method == "📄 رفع ملف Excel":
-            excel_file = st.file_uploader("ارفع ملف Excel (يحتوي على عمودي 'الاسم' و 'الدرجة')", type=["xlsx"])
-            if excel_file:
-                df = pd.read_excel(excel_file)
-        else:
-            count = st.number_input("حدد عدد الطلاب:", min_value=1, max_value=50, value=1, step=1)
-            data = {'الاسم': [], 'الدرجة': []}
-            for i in range(count):
-                c1, c2 = st.columns([3, 1])
-                with c1:
-                    name = st.text_input(f"اسم الطالب {i+1}", key=f"n{i}")
-                with c2:
-                    score = st.number_input("الدرجة", 0.0, 10.0, 0.0, step=0.1, key=f"s{i}")
-                data['الاسم'].append(name)
-                data['الدرجة'].append(score)
-            df = pd.DataFrame(data)
-            df = df[df['الاسم'].str.strip() != ""] if not df.empty else df
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.subheader("📥 الخطوة 1: أدخل بيانات الطلاب")
+method = st.radio("اختر طريقة الإدخال:", ["📄 رفع ملف Excel", "✍️ إدخال يدوي"], horizontal=True, label_visibility="collapsed")
 
-    with col2:
-        lessons = [
-            "الأغشية الخلوية والنقل عبرها", "الإنتشار والنقل النشط", "الخاصية الأسموزية وجهد الماء",
-            "النقل في النباتات", "النقل في الثدييات", "تبادل الغازات", "الجهاز الدوري", 
-            "الدورة القلبية", "الأوعية الدموية", "مكونات الدم", "التنفس الخلوي", "الجهاز التنفسي"
-        ]
-        selected_lesson = st.selectbox("اختر الدرس من القائمة:", lessons)
-    
-    st.markdown('</div>', unsafe_allow_html=True)
+if method == "📄 رفع ملف Excel":
+    excel_file = st.file_uploader("ارفع ملف Excel (يحتوي على عمودي 'الاسم' و 'الدرجة')", type=["xlsx"])
+    if excel_file:
+        df = pd.read_excel(excel_file)
+else:
+    count = st.number_input("حدد عدد الطلاب:", min_value=1, max_value=50, value=1, step=1)
+    data = {'الاسم': [], 'الدرجة': []}
+    for i in range(count):
+        c1, c2 = st.columns([3, 1])
+        with c1:
+            name = st.text_input(f"اسم الطالب {i+1}", key=f"n{i}")
+        with c2:
+            score = st.number_input("الدرجة", 0.0, 10.0, 7.0, step=0.1, key=f"s{i}")
+        data['الاسم'].append(name)
+        data['الدرجة'].append(score)
+    df = pd.DataFrame(data)
+    df = df[df['الاسم'].str.strip() != ""] if not df.empty else df
+st.markdown('</div>', unsafe_allow_html=True)
 
 
-# --- الجزء الثاني: زر التوليد وعرض النتائج ---
+# ==============================================================================
+#  المرحلة الثانية: تغيير طريقة اختيار الدرس
+# ==============================================================================
+st.markdown('<div class="card">', unsafe_allow_html=True)
+st.subheader("📚 الخطوة 2: اختر الدرس")
+lessons = [
+    "الأغشية الخلوية والنقل عبرها", "الإنتشار والنقل النشط", "الخاصية الأسموزية وجهد الماء",
+    "النقل في النباتات", "النقل في الثدييات", "تبادل الغازات", "الجهاز الدوري", 
+    "الدورة القلبية", "الأوعية الدموية", "مكونات الدم", "التنفس الخلوي", "الجهاز التنفسي"
+]
+selected_lesson = st.radio("اختر الدرس المطلوب:", lessons, horizontal=True)
+st.markdown('</div>', unsafe_allow_html=True)
+
+
+# --- المنطق الرئيسي ---
 if df is not None and not df.empty and 'الاسم' in df.columns and 'الدرجة' in df.columns and selected_lesson:
-    
     if st.button("✨ توليد الأنشطة الذكية", use_container_width=True):
-        
         with st.spinner('الوكيل الذكي يفكر... 🧠 لطفاً، انتظر قليلاً.'):
             files_to_zip = []
-            
             st.markdown("---")
-            st.markdown('<h2 style="text-align: center; color: #004D40;">📋 النتائج والأنشطة المخصصة</h2>', unsafe_allow_html=True)
+            st.markdown('<h2>📋 النتائج والأنشطة المخصصة</h2>', unsafe_allow_html=True)
 
             for index, row in df.iterrows():
                 name, score = row['الاسم'], row['الدرجة']
-                
                 if pd.notna(name) and name.strip() != "" and pd.notna(score):
                     level, activity_template = generate_smart_activity(float(score))
                     final_activity = activity_template.format(lesson=selected_lesson)
                     
-                    # عرض النتائج في بطاقات قابلة للتوسيع
                     with st.expander(f"👤 {name}  |  الدرجة: {score}  |  المستوى المقترح: {level}"):
                         st.markdown('<div class="card">', unsafe_allow_html=True)
                         st.text_area("النشاط المولد:", final_activity, height=150)
-                        
                         word_buffer = create_word_doc(name, level, final_activity)
                         files_to_zip.append((f"{name}.docx", word_buffer.getvalue()))
-                        
                         st.markdown('</div>', unsafe_allow_html=True)
 
-            # --- الجزء الرابع: الحفاظ على الميزات الناجحة (زر التحميل) ---
             if files_to_zip:
                 zip_buf = BytesIO()
                 with ZipFile(zip_buf, "w") as zipf:
                     for filename, data in files_to_zip:
                         zipf.writestr(filename, data)
                 zip_buf.seek(0)
-                
                 b64 = base64.b64encode(zip_buf.read()).decode()
                 download_filename = f"أنشطة_{selected_lesson.replace(' ', '_')}.zip"
                 
                 st.markdown("---")
-                st.markdown(f"""
-                    <div style="text-align: center; margin: 20px;">
-                        <a href="data:application/zip;base64,{b64}" download="{download_filename}" 
-                           style="background-color: #F4511E; color: white; padding: 15px 30px; border-radius: 10px; text-decoration: none; font-weight: bold; font-size: 18px;">
-                           📥 تحميل جميع الأنشطة (ملفات Word)
-                        </a>
-                    </div>
-                """, unsafe_allow_html=True)
-        
+                # ==============================================================================
+                #  المرحلة الثالثة: تغيير نص زر التحميل
+                # ==============================================================================
+                st.download_button(
+                    label="📥 تحميل الأنشطة",
+                    data=zip_buf,
+                    file_name=download_filename,
+                    mime="application/zip",
+                    use_container_width=True
+                )
         st.success("🎉 تم توليد الأنشطة بنجاح!")
         st.balloons()
 
