@@ -13,16 +13,16 @@ import arabic_reshaper
 from bidi.algorithm import get_display
 
 # --- إعدادات الصفحة ---
-st.set_page_config(page_title="الوكيل الذكي لمادة الأحياء", layout="wide", page_icon="🧬")
+# تم تعديل عنوان الصفحة هنا
+st.set_page_config(page_title="الوكيل الذكي للأحياء 11", layout="wide", page_icon="🧬")
 
 # --- العناوين الرئيسية ---
-st.markdown('<h1 style="text-align:center;">🧬 الوكيل الذكي 5.0 🧬</h1>', unsafe_allow_html=True)
+# تم تعديل العنوان الرئيسي هنا
+st.markdown('<h1 style="text-align:center;">🧬 الوكيل الذكي للأحياء 11 🧬</h1>', unsafe_allow_html=True)
 st.markdown('<h4 style="text-align:center;">مساعدك الشخصي لتوليد أنشطة طلابية فريدة ومبتكرة</h4>', unsafe_allow_html=True)
 st.markdown("<hr/>", unsafe_allow_html=True)
 
-# ==============================================================================
-#  المرحلة الثانية: إعادة هيكلة الدروس بشكل كامل
-# ==============================================================================
+# --- قاعدة بيانات الدروس ---
 LESSONS_DB = {
     "الفصل الدراسي الأول": {
         "الوحدة الأولى: تركيب الخلية": [
@@ -140,7 +140,8 @@ def create_word_doc(name, level, content):
         font.bold = bold
         p_format = p.paragraph_format
         p_format.right_to_left = True
-    add_rtl_paragraph("الوكيل الذكي لمادة الأحياء", alignment=WD_ALIGN_PARAGRAPH.CENTER, size=16, bold=True)
+    # تم تعديل عنوان ملف الوورد هنا
+    add_rtl_paragraph("الوكيل الذكي للأحياء 11", alignment=WD_ALIGN_PARAGRAPH.CENTER, size=16, bold=True)
     add_rtl_paragraph(f"اسم الطالب: {name}", size=14)
     add_rtl_paragraph(f"التصنيف: {level}", size=14)
     document.add_paragraph("--------------------------------------------------")
@@ -178,7 +179,6 @@ with st.container(border=True):
 with st.container(border=True):
     st.subheader("📚 الخطوة 2: اختر الدرس")
     
-    # الواجهة الجديدة لاختيار الدروس
     selected_semester = st.selectbox("اختر الفصل الدراسي:", list(LESSONS_DB.keys()))
     
     if selected_semester:
@@ -227,4 +227,5 @@ if df is not None and not df.empty and 'الاسم' in df.columns and 'الدر�
                 )
         st.success("🎉 تم توليد الأنشطة بنجاح!")
         st.balloons()
+
 
