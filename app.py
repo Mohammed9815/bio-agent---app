@@ -9,15 +9,16 @@ import random
 from docx import Document
 from docx.shared import Pt
 from docx.enum.text import WD_ALIGN_PARAGRAPH
+# استيرادات جديدة ومهمة جداً للحل النهائي
+from docx.oxml.ns import qn
+from docx.oxml import OxmlElement
 import arabic_reshaper
 from bidi.algorithm import get_display
 
 # --- إعدادات الصفحة ---
-# تم تعديل عنوان الصفحة هنا
 st.set_page_config(page_title="الوكيل الذكي للأحياء 11", layout="wide", page_icon="🧬")
 
 # --- العناوين الرئيسية ---
-# تم تعديل العنوان الرئيسي هنا
 st.markdown('<h1 style="text-align:center;">🧬 الوكيل الذكي للأحياء 11 🧬</h1>', unsafe_allow_html=True)
 st.markdown('<h4 style="text-align:center;">مساعدك الشخصي لتوليد أنشطة طلابية فريدة ومبتكرة</h4>', unsafe_allow_html=True)
 st.markdown("<hr/>", unsafe_allow_html=True)
@@ -110,7 +111,7 @@ ACTIVITY_BANK = {
     ]
 }
 
-# --- وظائف مساعدة (لا تغيير) ---
+# --- وظائف مساعدة ---
 def generate_smart_activity(score):
     if score < 5:
         level = "علاجي"
@@ -124,35 +125,55 @@ def generate_smart_activity(score):
     activity_template = random.choice(ACTIVITY_BANK[level])
     return f"{level} {level_emoji}", activity_template
 
+# ==============================================================================
+#  دالة إنشاء ملف Word (الإصلاح النهائي والجذري)
+# ==============================================================================
 def create_word_doc(name, level, content):
     document = Document()
-    for section in document.sections:
-        section.right_to_left = True
-    def add_rtl_paragraph(text, alignment=WD_ALIGN_PARAGRAPH.RIGHT, size=12, bold=False):
+    
+    # دالة مساعدة جديدة ومحسنة
+    def add_rtl_paragraph(doc, text, alignment=WD_ALIGN_PARAGRAPH.RIGHT, size=12, bold=False):
+        # 1. إعادة تشكيل النص
         reshaped_text = arabic_reshaper.reshape(text)
         bidi_text = get_display(reshaped_text)
-        p = document.add_paragraph()
+        
+        # 2. إضافة فقرة جديدة وتعيين المحاذاة
+        p = doc.add_paragraph()
         p.alignment = alignment
+        
+        # 3. إضافة النص للفقرة
         run = p.add_run(bidi_text)
+        
+        # 4. ضبط خصائص الخط
         font = run.font
         font.name = 'Times New Roman'
         font.size = Pt(size)
         font.bold = bold
-        p_format = p.paragraph_format
-        p_format.right_to_left = True
-    # تم تعديل عنوان ملف الوورد هنا
-    add_rtl_paragraph("الوكيل الذكي للأحياء 11", alignment=WD_ALIGN_PARAGRAPH.CENTER, size=16, bold=True)
-    add_rtl_paragraph(f"اسم الطالب: {name}", size=14)
-    add_rtl_paragraph(f"التصنيف: {level}", size=14)
+
+        # 5. الجزء الأهم: الحل الجذري عبر تعديل XML لفرض اتجاه RTL
+        pPr = p._p.get_or_add_pPr()
+        bidi_element = OxmlElement('w:bidi')
+        bidi_element.set(qn('w:val'), '1')
+        pPr.append(bidi_element)
+
+    # بناء المستند باستخدام الدالة الجديدة
+    add_rtl_paragraph(document, "الوكيل الذكي للأحياء 11", alignment=WD_ALIGN_PARAGRAPH.CENTER, size=16, bold=True)
+    add_rtl_paragraph(document, f"اسم الطالب: {name}", size=14)
+    add_rtl_paragraph(document, f"التصنيف: {level}", size=14)
     document.add_paragraph("--------------------------------------------------")
+
+    # إضافة محتوى النشاط سطراً بسطر
     for line in content.split('\n'):
-        add_rtl_paragraph(line)
+        add_rtl_paragraph(document, line)
+
+    # حفظ المستند في الذاكرة
     buffer = BytesIO()
     document.save(buffer)
     buffer.seek(0)
     return buffer
 
-# --- واجهة المستخدم المطورة ---
+
+# --- واجهة المستخدم (لا تغيير) ---
 df = None
 with st.container(border=True):
     st.subheader("📥 الخطوة 1: أدخل بيانات الطلاب")
@@ -227,5 +248,4 @@ if df is not None and not df.empty and 'الاسم' in df.columns and 'الدر�
                 )
         st.success("🎉 تم توليد الأنشطة بنجاح!")
         st.balloons()
-
 
