@@ -1,0 +1,21 @@
+# .streamlit/config.toml
+
+# هذا الملف يحدد المظهر المرئي لتطبيق Streamlit
+# وهو يضمن أن تكون الألوان واضحة ومريحة في كلا الوضعين (الفاتح والداكن)
+
+[theme]
+# اللون الأساسي للأزرار وعناصر التحكم
+primaryColor="#00897B" # Teal
+
+# ألوان الوضع الفاتح (Light Mode)
+backgroundColor="#F0F2F6"
+secondaryBackgroundColor="#FFFFFF"
+textColor="#1E293B"
+
+# ألوان الوضع الداكن (Dark Mode)
+#backgroundColor="#0D1117"
+#secondaryBackgroundColor="#161B22"
+#textColor="#E6EDF3"
+
+# الخط المستخدم في الواجهة
+font="sans serif"
